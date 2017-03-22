@@ -9,13 +9,12 @@ cd $HOME/Desktop/$projectname
 git init
 bower init
 bower install bootstrap
->>index.html <<'EOM'
+cat >>index.html <<'EOM'
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css">
-    <script src="bower_components/bootstrap/dist/css/bootstrap.css"></script>
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <script src="js/scripts.js"></script>
