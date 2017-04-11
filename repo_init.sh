@@ -3,12 +3,16 @@
 echo "enter a project name:"
 read projectname
 
+echo "creating folders"
 mkdir -p $HOME/Desktop/$projectname/{img,js,css}
+echo "creating files"
 touch $HOME/Desktop/$projectname/{css/styles.css,js/scripts.js,index.html}
 cd $HOME/Desktop/$projectname
-git init
-bower init
-bower install bootstrap
+echo "git initialization"
+git init > /dev/null
+yes '' | bower init >/dev/null
+echo "installing bootstrap"
+bower install bootstrap >/dev/null
 cat >>index.html <<'EOM'
 <!DOCTYPE html>
 <html>
@@ -27,5 +31,6 @@ cat >>index.html <<'EOM'
 </html>
 
 EOM
+echo "opening Atom"
 atom .
 exit 0
