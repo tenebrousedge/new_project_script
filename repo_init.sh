@@ -1,13 +1,15 @@
 #!/bin/bash
 
-echo "enter a project name:"
-read projectname
+echo 
+read -p "Enter a project name:" projectname
 
+read -p "Enter where you want the project files to be created: [default=$HOME/Desktop]" basedir
+basedir=${basedir:"$HOME/Desktop"}
 echo "creating folders"
-mkdir -p $HOME/Desktop/$projectname/{img,js,css}
+mkdir -p $basedir/$projectname/{img,js,css}
 echo "creating files"
-touch $HOME/Desktop/$projectname/{css/styles.css,js/scripts.js,index.html}
-cd $HOME/Desktop/$projectname
+touch $basedir/$projectname/{css/styles.css,js/scripts.js,index.html}
+cd $basedir/$projectname
 echo "git initialization"
 git init > /dev/null
 yes '' | bower init >/dev/null
