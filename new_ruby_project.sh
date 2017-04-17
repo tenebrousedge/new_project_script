@@ -14,8 +14,6 @@ source "https://rubygems.org"
 gem 'rspec'
 
 group :development do
-  gem 'guard'
-  gem 'guard-rspec'
   gem 'pry'
 end
 EOM
@@ -28,18 +26,9 @@ RSpec::Core::RakeTask.new do |task|
 end
 EOM
 
-cat >Guardfile <<'EOM'
-guard 'rspec' do
-  # watch /lib/ files
-  watch(%r{^lib/(.+).rb$}) do |m|
-    "spec/#{m[1]}_spec.rb"
-  end
-
-# watch /spec/ files
-  watch(%r{^spec/(.+).rb$}) do |m|
-    "spec/#{m[1]}.rb"
-  end
-end
-EOM
-
+cd $basedir/$projectdir
 bundle install >/dev/null
+git init
+if [ ! -f "$HOME/.pairs"]
+  nano "$HOME/.pairs"
+fi
