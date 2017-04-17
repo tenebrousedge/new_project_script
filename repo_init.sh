@@ -1,10 +1,9 @@
 #!/bin/bash
 
-echo 
 read -p "Enter a project name:" projectname
 
 read -p "Enter where you want the project files to be created: [default=$HOME/Desktop]" basedir
-basedir=${basedir:"$HOME/Desktop"}
+basedir=${basedir:-"$HOME/Desktop"}
 echo "creating folders"
 mkdir -p $basedir/$projectname/{img,js,css}
 echo "creating files"
