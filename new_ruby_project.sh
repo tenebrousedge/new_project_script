@@ -7,34 +7,36 @@ read -p "Enter where you want the project files to be created: [default=$HOME/De
 basedir=${basedir:-"$HOME/Desktop"}
 
 echo "creating folders"
-mkdir -p $basedir/$projectname/{lib,spec,views}
+mkdir -p $basedir/$projectname/views
 
 echo "creating files"
-cd $basedir/$projectname
-cat >Gemfile  <<'EOM'
-source "https://rubygems.org"
+cd $basedir
 
-gem 'rspec'
+bundle gem $projectname
+
+cd $projectname
+cat >Gemfile <<'EOM'
+source 'https://rubygems.org'
+
 gem 'sinatra'
-gem 'sinatra-contrib'
+gem 'capybara'
 
 group :development do
   gem 'pry'
-  gem 'capybara'
+  gem 'sinatra-contrib'
 end
+gemspec
 EOM
 
-cat >Rakefile <<'EOM'
-require 'rspec/core/rake_task'
+bundle install
 
-RSpec::Core::RakeTask.new do |task|
-  task.rspec_opts = ['--color', '--format', 'doc']
-end
-EOM
-
-cat >./view/layout.erb <<'EOM'
+cat >./views/layout.erb <<'EOM'
 <!DOCTYPE html>
   <head>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -52,14 +54,17 @@ EOM
 
 cat >app.rb <<'EOM'
 require 'sinatra'
-require "sinatra/reloader" if development?
+if development?
+  require 'sinatra/reloader'
+  also_reload('**/*.rb')
+end
 
 get('/') do
   erb(:index)
 end
 EOM
 
-touch ./view/index.erb
+touch ./views/index.erb
 
 bundle install >/dev/null &
 git init
