@@ -8,6 +8,7 @@ basedir=${basedir:-"$HOME/Desktop"}
 
 echo "creating folders"
 mkdir -p $basedir/$projectname/views
+mkdir -p $basedir/$projectname/public/{css,js}
 
 echo "creating files"
 cd $basedir
@@ -20,6 +21,7 @@ source 'https://rubygems.org'
 
 gem 'sinatra'
 gem 'capybara'
+gem 'minitest'
 
 group :development do
   gem 'pry'
@@ -27,8 +29,6 @@ group :development do
 end
 gemspec
 EOM
-
-bundle install
 
 cat >./views/layout.erb <<'EOM'
 <!DOCTYPE html>
@@ -64,12 +64,24 @@ get('/') do
 end
 EOM
 
-touch ./views/index.erb
+cat >config.ru <<'EOM'
+require ('./app')
+run Sinatra::Application
+EOM
 
-bundle install >/dev/null &
-git init
+touch ./views/index.erb
+touch ./public/{css/styles.css,js/scripts.js}
+
 if [ ! -f "$HOME/.pairs"]; then
-  nano "$HOME/.pairs"
+    echo "You should probably create a pairs file."
 fi
 
-atom .
+if [ -f "$HOME/.pre-commit-config.yaml" ]; then
+    cp "$HOME/.pre-commit-config.yaml" "./.pre-commit-config.yaml"
+    pre-commit install
+fi
+
+read -n1 -p "launch atom? [Y/n]" atom
+if [ $atom != 'n' -o $atom != 'N']; then
+    atom .
+fi
