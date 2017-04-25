@@ -72,7 +72,7 @@ EOM
 touch ./views/index.erb
 touch ./public/{css/styles.css,js/scripts.js}
 
-if [ ! -f "$HOME/.pairs"]; then
+if [ ! -f "$HOME/.pairs" ]; then
     echo "You should probably create a pairs file."
 fi
 
@@ -82,6 +82,6 @@ if [ -f "$HOME/.pre-commit-config.yaml" ]; then
 fi
 
 read -n1 -p "launch atom? [Y/n]" atom
-if [ $atom != 'n' -o $atom != 'N']; then
+if [ $atom != 'n' -o $atom != 'N' ]; then
     atom .
 fi
