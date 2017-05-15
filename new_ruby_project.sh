@@ -7,7 +7,7 @@ read -p "Enter where you want the project files to be created: [default=$HOME/De
 basedir=${basedir:-"$HOME/Desktop"}
 
 echo "creating folders"
-mkdir -p $basedir/$projectname/views
+mkdir -p $basedir/$projectname/{views,config,db/migrate}
 mkdir -p $basedir/$projectname/public/{css,js}
 
 echo "creating files"
@@ -19,14 +19,26 @@ cd $projectname
 cat >Gemfile <<'EOM'
 source 'https://rubygems.org'
 
+ruby "2.4.0"
+
+gem 'pg'
+gem 'pry'
+gem 'pry-byebug'
 gem 'sinatra'
-gem 'capybara'
-gem 'minitest'
+gem 'sinatra-activerecord'
+gem 'sinatra-flash'
 
 group :development do
-  gem 'pry'
   gem 'sinatra-contrib'
 end
+
+group :test do
+  gem 'capybara'
+  gem 'rspec'
+  gem 'shoulda-matchers'
+  gem 'timecop'
+end
+
 gemspec
 EOM
 
@@ -54,6 +66,9 @@ EOM
 
 cat >app.rb <<'EOM'
 require 'sinatra'
+require 'sinatra/activerecord'
+require 'sinatra-flash'
+
 if development?
   require 'sinatra/reloader'
   also_reload('**/*.rb')
@@ -65,23 +80,60 @@ end
 EOM
 
 cat >config.ru <<'EOM'
-require ('./app')
+require_relative './boot'
 run Sinatra::Application
+EOM
+
+cat >Procfile <<'EOM'
+web: bundle exec rackup config.ru -p $PORT
+EOM
+
+cat >boot.rb <<'EOM'
+require 'pry-byebug'
+require 'app'
+require 'rake'
+require 'sinatra/activerecord/rake'
+
+env = ENV['RACK_ENV'] || 'development'
+EOM
+
+cat >.rubocop.yml <<'EOM'
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context']
+EOM
+
+cat >./config/database.yml <<EOM
+development:
+  adapter: postgresql
+  database: ${projectname}_dev
+test:
+  adapter: postgresql
+  database: ${projectname}_test
 EOM
 
 touch ./views/index.erb
 touch ./public/{css/styles.css,js/scripts.js}
 
-if [ ! -f "$HOME/.pairs" ]; then
-    echo "You should probably create a pairs file."
-fi
+# TODO: test if rubocop is installed
+rubocop -a
+
+# if [ ! -f "$HOME/.pairs" ]; then
+#     echo "You should probably create a pairs file."
+# fi
 
 if [ -f "$HOME/.pre-commit-config.yaml" ]; then
     cp "$HOME/.pre-commit-config.yaml" "./.pre-commit-config.yaml"
     pre-commit install
 fi
 
+eslint --init
+
+echo 'Next steps: edit the .gemspec file and then run "bundle install".'
 read -n1 -p "launch atom? [Y/n]" atom
-if [ $atom != 'n' -o $atom != 'N' ]; then
+shopt -s nocasematch
+if [ $atom != 'n' ]; then
     atom .
 fi
+shopt -u nocasematch
+
+exit 0
